@@ -1,12 +1,22 @@
 package com.mrh0.createaddition;
 
+import com.mojang.brigadier.CommandDispatcher;
+import com.mrh0.createaddition.blocks.liquid_blaze_burner.LiquidBlazeBurnerBlock;
+import com.mrh0.createaddition.commands.CCApiCommand;
+import com.mrh0.createaddition.config.Config;
+import com.mrh0.createaddition.groups.ModGroup;
+import com.mrh0.createaddition.index.*;
+import com.mrh0.createaddition.network.EnergyNetworkPacket;
+import com.mrh0.createaddition.network.ObservePacket;
 import com.mrh0.createaddition.trains.schedule.CASchedule;
 import com.simibubi.create.content.fluids.tank.BoilerHeaters;
 import com.simibubi.create.content.kinetics.BlockStressValues;
 import com.simibubi.create.content.processing.burner.BlazeBurnerBlock;
+import com.simibubi.create.foundation.data.CreateRegistrate;
 import com.simibubi.create.foundation.item.ItemDescription;
 import com.simibubi.create.foundation.item.KineticStats;
 import com.simibubi.create.foundation.item.TooltipHelper;
+import com.simibubi.create.foundation.item.TooltipModifier;
 import com.simibubi.create.infrastructure.config.AllConfigs;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
@@ -29,30 +39,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.simple.SimpleChannel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.mojang.brigadier.CommandDispatcher;
-import com.mrh0.createaddition.blocks.liquid_blaze_burner.LiquidBlazeBurnerBlock;
-import com.mrh0.createaddition.commands.CCApiCommand;
-import com.mrh0.createaddition.config.Config;
-import com.mrh0.createaddition.groups.ModGroup;
-import com.mrh0.createaddition.index.CABlocks;
-import com.mrh0.createaddition.index.CAEffects;
-import com.mrh0.createaddition.index.CAFluids;
-import com.mrh0.createaddition.index.CAItemProperties;
-import com.mrh0.createaddition.index.CAItems;
-import com.mrh0.createaddition.index.CAPartials;
-import com.mrh0.createaddition.index.CAPonder;
-import com.mrh0.createaddition.index.CAPotatoCannonProjectiles;
-import com.mrh0.createaddition.index.CARecipes;
-import com.mrh0.createaddition.index.CATileEntities;
-import com.mrh0.createaddition.network.EnergyNetworkPacket;
-import com.mrh0.createaddition.network.ObservePacket;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.tterrag.registrate.util.nullness.NonNullSupplier;
-import com.simibubi.create.foundation.item.TooltipModifier;
 
 @Mod(CreateAddition.MODID)
 public class CreateAddition {
@@ -67,7 +55,7 @@ public class CreateAddition {
     public static final CreateRegistrate REGISTRATE = CreateRegistrate.create(CreateAddition.MODID);
 
     private static final String PROTOCOL = "1";
-	public static final SimpleChannel Network = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(MODID, "main"))
+    public static final SimpleChannel Network = NetworkRegistry.ChannelBuilder.named(new ResourceLocation(MODID, "main"))
             .clientAcceptedVersions(PROTOCOL::equals)
             .serverAcceptedVersions(PROTOCOL::equals)
             .networkProtocolVersion(() -> PROTOCOL)
@@ -75,8 +63,8 @@ public class CreateAddition {
 
     static {
         REGISTRATE.setTooltipModifierFactory(item ->
-            new ItemDescription.Modifier(item, TooltipHelper.Palette.STANDARD_CREATE)
-                    .andThen(TooltipModifier.mapNull(KineticStats.create(item)))
+                new ItemDescription.Modifier(item, TooltipHelper.Palette.STANDARD_CREATE)
+                        .andThen(TooltipModifier.mapNull(KineticStats.create(item)))
         );
     }
 
@@ -96,7 +84,7 @@ public class CreateAddition {
         CC_ACTIVE = ModList.get().isLoaded("computercraft");
         AE2_ACTIVE = ModList.get().isLoaded("ae2");
 
-        new ModGroup("main");
+        ModGroup.TAB_REGISTER.register(eventBus);
         REGISTRATE.registerEventListeners(eventBus);
         CABlocks.register();
         CATileEntities.register();
@@ -105,29 +93,29 @@ public class CreateAddition {
         CAEffects.register(eventBus);
         CARecipes.register(eventBus);
         CASchedule.register();
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> CAPartials.init());
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> CAPartials::init);
     }
 
     private void setup(final FMLCommonSetupEvent event) {
-    	CAPotatoCannonProjectiles.register();
-    	BlockStressValues.registerProvider(MODID, AllConfigs.server().kinetics.stressValues);
-    	BoilerHeaters.registerHeater(CABlocks.LIQUID_BLAZE_BURNER.get(), (level, pos, state) -> {
-    		BlazeBurnerBlock.HeatLevel value = state.getValue(LiquidBlazeBurnerBlock.HEAT_LEVEL);
-			if (value == BlazeBurnerBlock.HeatLevel.NONE) {
-				return -1;
-			}
-			if (value == BlazeBurnerBlock.HeatLevel.SEETHING) {
-				return 2;
-			}
-			if (value.isAtLeast(BlazeBurnerBlock.HeatLevel.FADING)) {
-				return 1;
-			}
-			return 0;
-    	});
+        CAPotatoCannonProjectiles.register();
+        BlockStressValues.registerProvider(MODID, AllConfigs.server().kinetics.stressValues);
+        BoilerHeaters.registerHeater(CABlocks.LIQUID_BLAZE_BURNER.get(), (level, pos, state) -> {
+            BlazeBurnerBlock.HeatLevel value = state.getValue(LiquidBlazeBurnerBlock.HEAT_LEVEL);
+            if (value == BlazeBurnerBlock.HeatLevel.NONE) {
+                return -1;
+            }
+            if (value == BlazeBurnerBlock.HeatLevel.SEETHING) {
+                return 2;
+            }
+            if (value.isAtLeast(BlazeBurnerBlock.HeatLevel.FADING)) {
+                return 1;
+            }
+            return 0;
+        });
     }
 
     private void doClientStuff(final FMLClientSetupEvent event) {
-    	event.enqueueWork(CAPonder::register);
+        event.enqueueWork(CAPonder::register);
         event.enqueueWork(CAItemProperties::register);
 
         RenderType cutout = RenderType.cutoutMipped();
@@ -137,17 +125,17 @@ public class CreateAddition {
     }
 
     public void postInit(FMLLoadCompleteEvent evt) {
-    	int i = 0;
+        int i = 0;
         Network.registerMessage(i++, ObservePacket.class, ObservePacket::encode, ObservePacket::decode, ObservePacket::handle);
         Network.registerMessage(i++, EnergyNetworkPacket.class, EnergyNetworkPacket::encode, EnergyNetworkPacket::decode, EnergyNetworkPacket::handle);
 
-    	System.out.println("Create Crafts & Additions Initialized!");
+        System.out.println("Create Crafts & Additions Initialized!");
     }
 
     @SubscribeEvent
     public void onRegisterCommandEvent(RegisterCommandsEvent event) {
-    	CommandDispatcher<CommandSourceStack> dispather = event.getDispatcher();
-    	CCApiCommand.register(dispather);
+        CommandDispatcher<CommandSourceStack> dispather = event.getDispatcher();
+        CCApiCommand.register(dispather);
     }
 
     public static ResourceLocation asResource(String path) {

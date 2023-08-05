@@ -7,6 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -100,8 +101,7 @@ public class ModularAccumulatorBlockItem extends BlockItem {
 				BlockState blockState = world.getBlockState(offsetPos);
 				if (ModularAccumulatorBlock.isAccumulator(blockState))
 					continue;
-				if (!blockState.getMaterial()
-					.isReplaceable())
+				if (blockState.is(BlockTags.REPLACEABLE))
 					return;
 				blocksToPlace++;
 			}

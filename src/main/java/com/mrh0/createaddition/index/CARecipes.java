@@ -23,15 +23,13 @@ import net.minecraftforge.registries.RegistryObject;
 public class CARecipes {
 	public static final DeferredRegister<RecipeSerializer<?>> TYPES =
             DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, CreateAddition.MODID);
-	
-	static RegistryObject<RecipeSerializer<?>> ROLLING = TYPES.register("rolling", () ->
+
+	public static final RegistryObject<RecipeSerializer<?>> ROLLING = TYPES.register("rolling", () ->
 		new SequencedAssemblyRollingRecipeSerializer(new RollingRecipeProcessingFactory()));
-	
-	static RegistryObject<RecipeSerializer<?>> CHARGING = TYPES.register("charging", () ->
-		new ChargingRecipeSerializer());
-	
-	static RegistryObject<RecipeSerializer<?>> LIQUID_BURNING = TYPES.register("liquid_burning", () ->
-	new LiquidBurningRecipeSerializer());
+
+	public static final RegistryObject<RecipeSerializer<?>> CHARGING = TYPES.register("charging", ChargingRecipeSerializer::new);
+
+	public static final RegistryObject<RecipeSerializer<?>> LIQUID_BURNING = TYPES.register("liquid_burning", LiquidBurningRecipeSerializer::new);
 	
     public static void register(IEventBus event) {
     	

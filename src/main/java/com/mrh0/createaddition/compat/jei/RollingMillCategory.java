@@ -8,6 +8,8 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
+import net.minecraft.client.gui.GuiGraphics;
+import org.jetbrains.annotations.NotNull;
 
 public class RollingMillCategory extends CARecipeCategory<RollingRecipe> {
 
@@ -27,14 +29,14 @@ public class RollingMillCategory extends CARecipeCategory<RollingRecipe> {
 		builder
 				.addSlot(RecipeIngredientRole.OUTPUT, 140, 28)
 				.setBackground(getRenderedSlot(), -1, -1)
-				.addItemStack(recipe.getResultItem());
+				.addItemStack(recipe.getResultItem(null));
 	}
 
 	@Override
-	public void draw(RollingRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX,
-			double mouseY) {
-		AllGuiTextures.JEI_ARROW.render(stack, 85, 32);
-		AllGuiTextures.JEI_DOWN_ARROW.render(stack, 43, 4);
-		rolling_mill.draw(stack, 48, 27);
+	public void draw(@NotNull RollingRecipe recipe, @NotNull IRecipeSlotsView recipeSlotsView, @NotNull GuiGraphics guiGraphics, double mouseX, double mouseY) {
+		super.draw(recipe, recipeSlotsView, guiGraphics, mouseX, mouseY);
+		AllGuiTextures.JEI_ARROW.render(guiGraphics, 85, 32);
+		AllGuiTextures.JEI_DOWN_ARROW.render(guiGraphics, 43, 4);
+		rolling_mill.draw(guiGraphics, 48, 27);
 	}
 }

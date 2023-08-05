@@ -7,17 +7,15 @@ import com.mrh0.createaddition.groups.ModGroup;
 import com.mrh0.createaddition.item.WireSpool;
 import com.mrh0.createaddition.item.BiomassPellet;
 import com.mrh0.createaddition.item.DiamondGritSandpaper;
-import com.simibubi.create.foundation.data.CreateRegistrate;
-import com.simibubi.create.foundation.item.HiddenIngredientItem;
 import com.tterrag.registrate.util.entry.ItemEntry;
 
 import net.minecraft.world.item.Item;
 
 
 public class CAItems {
-
 	static {
-		CreateAddition.REGISTRATE.creativeModeTab(() -> ModGroup.MAIN);
+		if (ModGroup.MAIN.getKey() != null)
+			CreateAddition.REGISTRATE.defaultCreativeTab(ModGroup.MAIN.getKey());
 	}
 	
 	public static final ItemEntry<Item> CAPACITOR =
@@ -107,12 +105,12 @@ public class CAItems {
 	public static final ItemEntry<WireSpool> FESTIVE_SPOOL =
 			CreateAddition.REGISTRATE.item("festive_spool", WireSpool::new).register();
 	
-	public static final ItemEntry<HiddenIngredientItem> CAKE_BASE =
-			CreateAddition.REGISTRATE.item("cake_base", HiddenIngredientItem::new)
-				.register();
-	public static final ItemEntry<HiddenIngredientItem> CAKE_BASE_BAKED =
-			CreateAddition.REGISTRATE.item("cake_base_baked", HiddenIngredientItem::new)
-				.register();
+//	public static final ItemEntry<HiddenIngredientItem> CAKE_BASE =
+//			CreateAddition.REGISTRATE.item("cake_base", HiddenIngredientItem::new)
+//				.register();
+//	public static final ItemEntry<HiddenIngredientItem> CAKE_BASE_BAKED =
+//			CreateAddition.REGISTRATE.item("cake_base_baked", HiddenIngredientItem::new)
+//				.register();
 	
 	public static final ItemEntry<Item> STRAW =
 			CreateAddition.REGISTRATE.item("straw", Item::new)

@@ -42,7 +42,6 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.CapabilityEnergy;
 import net.minecraftforge.energy.IEnergyStorage;
 
 public class ModularAccumulatorTileEntity extends SmartBlockEntity implements IHaveGoggleInformation, IMultiTileEnergyContainer, IObserveTileEntity, IDebugDrawer, ThresholdSwitchObservable {
@@ -132,7 +131,7 @@ public class ModularAccumulatorTileEntity extends SmartBlockEntity implements IH
 			setCache(side, LazyOptional.empty());
 			return;
 		}
-		LazyOptional<IEnergyStorage> le = te.getCapability(CapabilityEnergy.ENERGY, side.getOpposite());
+		LazyOptional<IEnergyStorage> le = te.getCapability(ForgeCapabilities.ENERGY, side.getOpposite());
 		// Make sure that the side we're caching can actually be cached.
 		if (side != Direction.UP && side != Direction.DOWN) return;
 		// Make sure the side isn't already cached.
@@ -441,7 +440,7 @@ public class ModularAccumulatorTileEntity extends SmartBlockEntity implements IH
 	@Override
 	public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> cap, @Nullable Direction side) {
 		if (!energyCap.isPresent()) refreshCapability();
-		if (cap == CapabilityEnergy.ENERGY) return energyCap.cast();
+		if (cap == ForgeCapabilities.ENERGY) return energyCap.cast();
 		if (CreateAddition.CC_ACTIVE && Peripherals.isPeripheral(cap)) return this.peripheral.cast();
 		return super.getCapability(cap, side);
 	}
